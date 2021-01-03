@@ -1,0 +1,36 @@
+version: '3.1'
+
+services:
+
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_DB=roadmaps
+      - POSTGRES_USER=roadmap
+      - POSTGRES_PASSWORD
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  roadmap-builder-app:
+    build: .
+    ports:
+      - 8000:8000
+    command: run
+    environment:
+      - DJANGO_SECRET_KEY
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST=roadmaps_postgres_1
+      - DJANGO_SETTINGS_MODULE=roadmap_builder.settings
+    volumes:
+      - static-content:/app/static
+    depends_on:
+      - postgres
+
+volumes:
+  static-content:
+    driver: local
+  postgres-data:
+    driver: local
